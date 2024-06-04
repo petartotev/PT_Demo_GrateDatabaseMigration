@@ -54,7 +54,7 @@ CREATE TABLE employee (
 
 - /src
     - /docker
-        - ddocker-compose.yml
+        - docker-compose.yml
 
 ```
 version: "3.7"
@@ -72,7 +72,100 @@ services:
       - ./output:/output
 ```
 
+4. Run Docker containers using the `docker-compose.yml` and remove them once you finish with the demo:
+
+```
+docker-compose up -d
+docker-compose down -v
+```
+
 ## Demo using Docker - DK Example
+
+1. Create the following folder structure:
+
+- /src
+    - /dk-repo
+        - /DatabaseScripts
+            - /dropDatabase // -1. Anytime
+            - /createDatabase // 0. Anytime
+            - /beforeMigration // 1. Everytime
+            - /alterDatabase // 2. Anytime
+            - /runAfterCreateDatabase // 3. Anytime
+            - /runBeforeUp // 4. Anytime
+            - /up // 5. One-Time
+            - /runFirstAfterUp // 6. One-Time
+            - /functions // 7. Anytime
+            - /views // 8. Anytime
+            - /sprocs // 9. Anytime
+            - /triggers // 10. Anytime
+            - /indexes // 11. Anytime
+            - /runAfterOtherAnyTimeScripts // 12. Anytime
+            - /permissions // 13. Everytime
+            - /afterMigration // 14.  Everytime
+        - /output
+
+2. In `/up` folder, create SQL script `0001.CreateTable.Employee.sql`:
+
+- /src
+    - /dk-repo
+        - /DatabaseScripts
+            - /up
+                - 0001.CreateTable.Employee.sql
+
+```
+CREATE TABLE Employee (
+  Id int PRIMARY KEY, 
+  Name text,
+  Age int
+);
+```
+
+3. In `/dk-repo` folder, create file `docker-compose.yml`:
+
+- /src
+    - /dk-repo
+        - docker-compose.yml
+
+```
+version: "3.7"
+services:
+  mysql:
+    image: mysql:8.0.26
+    restart: always
+    platform: linux/x86_64
+    environment:
+      MYSQL_ROOT_PASSWORD: Test123!
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: "mysql -uroot -pTest123! -e 'select 1'"
+      interval: 1s
+      retries: 120
+
+  migrations:
+    image: erikbra/grate:1.5.4
+    platform: linux/x86_64
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command:
+      - --connstring=server=mysql;uid=root;password=Test123!;database=TestDb;AllowUserVariables=True;SslMode=None;AllowPublicKeyRetrieval=True
+      - --adminconnectionstring=server=mysql;uid=root;password=Test123!;SslMode=None;AllowPublicKeyRetrieval=True
+      - --databasetype=mariadb
+      - --files=/DatabaseScripts
+      - --noninteractive
+      - --donotstorescriptsruntext
+      - --environment=LOCAL
+    volumes:
+      - ./DatabaseScripts:/DatabaseScripts:ro
+```
+
+4. Run Docker containers using the `docker-compose.yml` and remove them once you finish with the demo:
+
+```
+docker-compose up -d
+docker-compose down -v
+```
 
 ## Links
 

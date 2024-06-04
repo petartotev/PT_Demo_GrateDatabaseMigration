@@ -1,0 +1,31 @@
+version: "3.7"
+services:
+  mysql:
+    image: mysql:8.0.26
+    restart: always
+    platform: linux/x86_64
+    environment:
+      MYSQL_ROOT_PASSWORD: Test123!
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: "mysql -uroot -pTest123! -e 'select 1'"
+      interval: 1s
+      retries: 120
+
+  migrations:
+    image: erikbra/grate:1.5.4
+    platform: linux/x86_64
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command:
+      - --connstring=server=mysql;uid=root;password=Test123!;database=TestDb;AllowUserVariables=True;SslMode=None;AllowPublicKeyRetrieval=True
+      - --adminconnectionstring=server=mysql;uid=root;password=Test123!;SslMode=None;AllowPublicKeyRetrieval=True
+      - --databasetype=mariadb
+      - --files=/DatabaseScripts
+      - --noninteractive
+      - --donotstorescriptsruntext
+      - --environment=LOCAL
+    volumes:
+      - ./DatabaseScripts:/DatabaseScripts:ro
