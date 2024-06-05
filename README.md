@@ -79,6 +79,18 @@ docker-compose up -d
 docker-compose down -v
 ```
 
+5. Connect to MySQL Server in Workbench using the credentials from the `docker-compose.yml` file.
+
+6. Grate execution data is saved in 6 tables created in a `grate` schema inside the `testdb` database:
+- GrateScriptsRun
+- GrateScriptsRunErrors
+- GrateVersion
+- ScriptsRun
+- ScriptsRunErrors
+- Version
+
+![grate-demo-docker-1](./res/grate-demo-docker-1.jpg)
+
 ## Demo using Docker - DK Example
 
 1. Create the following folder structure:
@@ -166,6 +178,17 @@ services:
 docker-compose up -d
 docker-compose down -v
 ```
+
+5. Connect to MySQL Server in Workbench using the credentials from the `docker-compose.yml` file:
+
+![grate-demo-dk-repo-1](./res/grate-demo-dk-repo-1.jpg)
+
+6. Grate execution data is saved in 3 tables created inside the `TestDb` database:
+- grate_ScriptsRun
+- grate_ScriptsRunErrors
+- grate_Version
+
+![grate-demo-dk-repo-2](./res/grate-demo-dk-repo-2.jpg)
 
 ## Links
 
